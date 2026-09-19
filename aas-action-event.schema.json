@@ -1,0 +1,307 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/openagentaccountability/agent-accountability-standard/schema/aas-action-event.schema.json",
+  "title": "AAS Action Event",
+  "description": "Draft, non-normative-until-reviewed JSON Schema for a single CAAAS action-lifecycle event, per AAS Discussion Draft 2.1 (16 September 2026), Section 6. Multiple events sharing an action_id together describe one cross-organizational action. This file is a stub for community review and is expected to change before any conformance claims are made against it.",
+  "type": "object",
+  "required": [
+    "spec_version",
+    "event_id",
+    "action_id",
+    "event_type",
+    "occurred_at",
+    "issuer",
+    "principal",
+    "actor",
+    "target",
+    "action",
+    "privacy",
+    "integrity"
+  ],
+  "properties": {
+    "spec_version": {
+      "type": "string",
+      "description": "Version of this schema that the event conforms to.",
+      "examples": ["2.1.0"]
+    },
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Globally unique identifier for this immutable event. Distinct from action_id: one action has many events."
+    },
+    "action_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Correlates all events belonging to one action lifecycle."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "authorization",
+        "dispatch",
+        "acceptance",
+        "execution",
+        "result",
+        "failure",
+        "revocation",
+        "compensation",
+        "dispute"
+      ],
+      "description": "Lifecycle phase this event represents. See spec Section 5 for semantics and typical issuer per type."
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 timestamp asserted by the issuer. Not independently verified by the schema; see spec Section 4.1 on clock skew as a threat."
+    },
+    "issuer": {
+      "type": "object",
+      "description": "The signing entity for this event.",
+      "required": ["issuer_id", "org_id", "key_id"],
+      "properties": {
+        "issuer_id": {
+          "type": "string",
+          "format": "uri",
+          "description": "Resolvable identifier for the signing entity (HTTPS URL, SPIFFE ID, DID, or other URI form per spec Section 6.1)."
+        },
+        "org_id": {
+          "type": "string",
+          "format": "uri",
+          "description": "Organization operating the issuer."
+        },
+        "key_id": {
+          "type": "string",
+          "description": "Identifier for the verification key or certificate used. Must support revocation/status checking (spec 6.1)."
+        },
+        "signer_role": {
+          "type": "string",
+          "description": "Role of the issuer relative to the event, e.g. 'initiating-gateway', 'policy-decision-point', 'receiving-service'.",
+          "examples": ["initiating-gateway", "policy-decision-point", "receiving-service", "execution-gateway"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "principal": {
+      "type": "object",
+      "description": "The human, organization, service, or device on whose authority the action is claimed.",
+      "required": ["principal_id", "principal_type"],
+      "properties": {
+        "principal_id": { "type": "string", "format": "uri" },
+        "principal_type": {
+          "type": "string",
+          "enum": ["human", "organization", "service", "device"]
+        },
+        "org_id": { "type": "string", "format": "uri" }
+      },
+      "additionalProperties": true
+    },
+    "actor": {
+      "type": "object",
+      "description": "The agent taking the action. actor.agent_id identifies the logical agent, not necessarily a specific running process (spec 6.1).",
+      "required": ["agent_id", "agent_class"],
+      "properties": {
+        "agent_id": { "type": "string", "format": "uri" },
+        "operator_org_id": { "type": "string", "format": "uri" },
+        "agent_class": {
+          "type": "string",
+          "enum": ["software", "physical"],
+          "description": "Whether the agent is a software process or a physical autonomous system."
+        },
+        "software_ref": {
+          "type": "object",
+          "description": "Software/model/runtime references, e.g. model version, agent framework, build hash.",
+          "additionalProperties": true
+        },
+        "workload_attestation_ref": {
+          "type": "string",
+          "description": "Optional reference to device/workload attestation evidence (see physical profile, Section 10) binding agent_id to a specific running instance."
+        }
+      },
+      "additionalProperties": true
+    },
+    "target": {
+      "type": "object",
+      "description": "The organization and resource/service the action targets.",
+      "required": ["target_org_id"],
+      "properties": {
+        "target_org_id": { "type": "string", "format": "uri" },
+        "resource_ref": { "type": "string", "format": "uri" },
+        "cross_org_boundary": {
+          "type": "boolean",
+          "description": "True if principal.org_id and target.target_org_id differ."
+        }
+      },
+      "additionalProperties": true
+    },
+    "action": {
+      "type": "object",
+      "description": "Machine-readable description of the action being attested.",
+      "required": ["action_name", "action_category"],
+      "properties": {
+        "action_name": {
+          "type": "string",
+          "description": "Machine-readable action name, e.g. an MCP tool name, an A2A skill id, or a payment operation."
+        },
+        "action_category": {
+          "type": "string",
+          "enum": ["read", "write", "execute", "delegate", "physical", "payment", "other"]
+        },
+        "risk_tier": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"],
+          "description": "Deployment-defined risk tier; drives which conformance profile and failure policy apply (spec 7.2, 11)."
+        },
+        "side_effect_class": {
+          "type": "string",
+          "enum": ["none", "reversible", "irreversible"],
+          "description": "Whether the action's effects can be undone; irreversible/critical actions should ordinarily fail closed (spec 7.2)."
+        },
+        "payload_commitment": {
+          "type": "string",
+          "description": "Cryptographic commitment (digest, keyed commitment, or encrypted envelope reference) over the action payload. Never the raw payload itself (spec 6.3)."
+        },
+        "human_readable_description": {
+          "type": "string",
+          "description": "Informative only. Verification must rely on structured fields, not this text (spec 6.3)."
+        }
+      },
+      "additionalProperties": true
+    },
+    "authorization": {
+      "type": "object",
+      "description": "Required for authorization and dispatch events (spec Section 6.2). References, not bearer credentials.",
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": ["allow", "deny", "conditional"]
+        },
+        "policy_ref": { "type": "string", "format": "uri" },
+        "policy_version": { "type": "string" },
+        "credential_refs": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" },
+          "description": "References or digests, never raw tokens, API keys, or reusable secrets."
+        },
+        "constraints": {
+          "type": "object",
+          "description": "e.g. amount, time window, target, geography, permitted tool.",
+          "additionalProperties": true
+        },
+        "human_approval_ref": { "type": "string", "format": "uri" },
+        "expiry": { "type": "string", "format": "date-time" },
+        "nonce": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Required for terminal events (result, failure, dispute). Result status and commitments/receipts for request and result evidence.",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["success", "failure", "partial", "disputed", "unknown"]
+        },
+        "result_commitment": { "type": "string" },
+        "settlement_ref": { "type": "string", "format": "uri" },
+        "receipt_refs": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "trace": {
+      "type": "object",
+      "description": "Recommended. W3C Trace Context and protocol-native correlation identifiers.",
+      "properties": {
+        "traceparent": { "type": "string" },
+        "tracestate": { "type": "string" },
+        "protocol_correlation_id": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "privacy": {
+      "type": "object",
+      "description": "Required. Classification, disclosure mode, and retention metadata (spec Section 9).",
+      "required": ["classification", "disclosure_mode"],
+      "properties": {
+        "classification": {
+          "type": "string",
+          "description": "Deployment-defined data classification label, e.g. 'public', 'internal', 'confidential', 'regulated'."
+        },
+        "disclosure_mode": {
+          "type": "string",
+          "enum": ["plaintext", "redacted", "encrypted", "selective-disclosure", "commitment-only"]
+        },
+        "retention_ref": {
+          "type": "string",
+          "description": "Reference to the applicable retention, legal-hold, or cryptographic-erasure policy."
+        },
+        "data_residency": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "integrity": {
+      "type": "object",
+      "description": "Required. Canonicalization, digest, signature format, key, and optional transparency receipt (spec Section 6.4).",
+      "required": ["canonicalization", "digest_alg", "signature_format", "signature"],
+      "properties": {
+        "canonicalization": {
+          "type": "string",
+          "description": "e.g. 'RFC8785-JCS' for the baseline JSON profile.",
+          "examples": ["RFC8785-JCS"]
+        },
+        "digest_alg": {
+          "type": "string",
+          "examples": ["SHA-256"]
+        },
+        "signature_format": {
+          "type": "string",
+          "enum": ["JOSE", "COSE", "DSSE", "SCITT-signed-statement"],
+          "description": "A bare hash is not a signature and does not satisfy this field."
+        },
+        "signature": {
+          "type": "string",
+          "description": "The signature value itself, encoded per signature_format."
+        },
+        "transparency_receipt": {
+          "type": "string",
+          "description": "Optional inclusion/registration receipt from a transparency service (e.g. SCITT/Tessera), required for the transparency-backed conformance profile and above (spec Section 11)."
+        }
+      },
+      "additionalProperties": true
+    },
+    "previous_event_ids": {
+      "type": "array",
+      "items": { "type": "string", "format": "uuid" },
+      "description": "Conditional. Links this event to prior events in the same lifecycle for delegation, correction, dispute, or compensation relationships (spec Section 5, 7). Corrections must reference the event being corrected rather than rewriting it."
+    }
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "if": {
+        "properties": { "event_type": { "const": "authorization" } }
+      },
+      "then": { "required": ["authorization"] }
+    },
+    {
+      "if": {
+        "properties": { "event_type": { "const": "dispatch" } }
+      },
+      "then": { "required": ["authorization"] }
+    },
+    {
+      "if": {
+        "properties": { "event_type": { "enum": ["result", "failure", "dispute"] } }
+      },
+      "then": { "required": ["evidence"] }
+    },
+    {
+      "if": {
+        "properties": { "event_type": { "enum": ["revocation", "compensation", "dispute"] } }
+      },
+      "then": { "required": ["previous_event_ids"] }
+    }
+  ]
+}

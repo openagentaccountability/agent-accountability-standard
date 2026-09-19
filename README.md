@@ -1,71 +1,65 @@
-# Agent Accountability Standard
+<div align="center">
 
-**The open standard for cross-organizational agent action attestation. CAAAS: Cross-Organizational Agent Action Attestation Schema.**
+# Agent Accountability Standard (AAS)
 
----
+**When an AI agent acts across a company boundary, what proof should exist afterward?**
 
-## What this is
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-discussion%20draft-orange.svg)](SPEC.md#document-status)
 
-AI agents now act across organizational boundaries, executing transactions, accessing data, delegating to other agents, and operating physical systems, at a speed and scale that contracts were not designed to govern.
+*A discussion draft, not an adopted standard. [Read the full spec →](SPEC.md)*
 
-When an agent operated by Company A delegates to Company B, which delegates to Company C, whether that agent is a software process or a robot on a production floor, there is no standard specifying what attestation record must exist, where it must be stored, or who can verify it when something goes wrong.
-
-The **Agent Accountability Standard** defines that record. It covers the full autonomy stack: software agents and physical AI agents alike. A robot is an agent with a body. The accountability questions are identical. The stakes are higher.
-
----
-
-## The gap this fills
-
-Existing protocols address adjacent problems well:
-
-- **MCP / A2A / AGNTCY** — agent connectivity, messaging, and infrastructure
-- **x402 / MPP** — how agents pay for things
-- **AP2 (Google)** — authorization for agent-initiated purchase transactions
-- **AIP / Microsoft AGT** — intra-organizational agent governance
-
-None of them define the persistent, independently-verifiable attestation record that a regulator, auditor, or counterparty can examine after the fact, across organizational boundaries, for actions that are not payments.
-
-That is the gap this standard fills.
+</div>
 
 ---
 
-## The technical specification
+## The problem
 
-The Agent Accountability Standard is the formal name for the **CAAAS** schema — the Cross-Organizational Agent Action Attestation Schema.
+AI agents now execute transactions, move data, and control physical systems across company lines: one company's agent acting inside another company's environment. When something goes wrong, each side usually has a *different* record of what happened: one system logged an approval, another logged a task, a third logged a payment. None of these records were designed to line up with each other, and neither party can prove to an outside auditor that their version is the complete one.
 
-A CAAAS-compliant attestation record captures who acted, on whose authorization, on what, and when — in a tamper-evident, non-repudiable form that travels with the agent action rather than staying inside any single organization's systems.
+**AAS proposes a shared answer:** a common format for recording who acted, on whose authority, what happened, and where the proof lives, one that works no matter which company built the agent or which protocol it ran on.
 
-The full concept paper is available upon request: kay@naruadvisory.com
+## The core idea
 
----
+Instead of one record that claims to capture an entire action, AAS treats an action as a **chain of cryptographically signed events**, each added by whoever was actually in a position to know it happened. This is what makes it a form of **cryptographic attestation**, not just logging: each event is signed by its issuer, so anyone can independently verify who made a given claim and that it hasn't been altered since, without needing to trust whoever is storing the record.
 
-## Status
+```
+authorization → dispatch → acceptance → execution → result
+                                              ↓
+                                   (or: failure, dispute, compensation)
+```
 
-**Concept paper stage.** Targeting submission to the Linux Foundation Agentic AI Foundation (AAIF) for working group consideration in June 2026.
+Each event is signed by whoever issued it, and all events for one action share an ID so they can be linked together later, whether by an auditor, a counterparty, or either side of a dispute. No single party's signature can vouch for what someone else did; the chain is only as complete as what both sides actually contributed.
 
-We are actively seeking:
-- Working group participants from physical AI and industrial robotics companies, enterprise software agent platforms, regulated financial institutions, Big Four assurance practices, and on-chain infrastructure providers
-- Technical review of the attestation schema
-- Reference implementation collaborators for Path 1 (W3C DID + consortium log) and Path 2 (on-chain)
+## Why not just use what already exists?
 
----
+Good question. The honest answer is: use as much of it as you can. AAS isn't trying to replace MCP, A2A, OAuth, or payment protocols like AP2 and x402. It's trying to fill the specific hole none of them cover: **a portable record of what happened, that survives after the transaction, and that a party outside the original relationship can independently verify.**
 
-## How to engage
+Some things that make AAS worth a look next to adjacent work:
 
-- **Open an issue** to comment on the schema, raise questions, or propose changes
-- **Start a discussion** for broader working group conversation
-- **Email:** kay@naruadvisory.com
+- **It's a lifecycle, not a snapshot.** Most comparable proposals sign one record per decision. AAS links the whole sequence, including what happens if it's later disputed or reversed.
+- **It works across protocols, not inside just one.** It's designed to carry evidence through MCP, A2A, payment protocols, and physical control systems, not just one of them.
+- **It covers physical agents too.** Robots and industrial systems get the same treatment as software agents, not a bolt-on.
+- **It doesn't require picking a blockchain, a vendor, or a single log operator.** Bilateral logs, consortium logs, or public ledgers can all conform.
 
----
+The [full spec](SPEC.md) goes into where this overlaps with related efforts (IETF drafts, an existing receipt protocol called Sello, delegation-credential research), including a direct argument for [why cryptographic attestation, not just logs →](SPEC.md#43-why-cryptographic-signing-is-the-required-baseline), and is upfront about what a signature can and can't actually prove. Worth reading before assuming this is a bigger claim than it is.
+
+## What this is *not*
+
+- Not a finished standard: no organization has adopted it, and it doesn't claim any endorsement.
+- Not a replacement for existing identity, authorization, or payment protocols: it references their proofs rather than reinventing them.
+- Not a legal opinion: it doesn't decide who's liable, or whether a signature counts as a legal signature in your jurisdiction.
+
+## Get involved
+
+- **Read the [full specification](SPEC.md)** for the threat model, the schema, and the open questions.
+- **Look at the [draft JSON Schema](schema/aas-action-event.schema.json).** It's an early stub and needs review.
+- **[Open an issue](../../issues/new/choose)** if something's unclear, wrong, or missing. See [CONTRIBUTING.md](CONTRIBUTING.md) for how issues are triaged.
 
 ## About
 
-Initiated by **Kay Yoo**, founder of Naru Advisory. Former Senior Consultant, KPMG Financial Institutions Group. Former COO, ZTX. Former Director of Strategy & Ops, Origin Protocol.
-
-This standard draws on a background in financial audit and assurance and direct experience operationalizing governance in cross-organizational, cross-jurisdictional, and decentralized environments.
-
----
+Initiated by Kay Yoo, [Naru Advisory](https://naruadvisory.com) · [kay@naruadvisory.com](mailto:kay@naruadvisory.com)
 
 ## License
 
-Apache License 2.0
+Apache License 2.0. See [LICENSE](LICENSE).
