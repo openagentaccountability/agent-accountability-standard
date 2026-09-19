@@ -10,7 +10,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Status](https://img.shields.io/badge/status-discussion%20draft-orange.svg)](#document-status)
-[![Schema](https://img.shields.io/badge/schema-draft%20v0.1-lightgrey.svg)](schema/aas-action-event.schema.json)
+[![Schema](https://img.shields.io/badge/schema-draft%20v0.1-lightgrey.svg)](aas-action-event.schema.json)
 
 **Kay Yoo** · [Naru Advisory](https://naruadvisory.com) · [kay@naruadvisory.com](mailto:kay@naruadvisory.com)
 
@@ -212,7 +212,7 @@ Events are append-only. Corrections are new events referencing the event being c
 
 ## 6. CAAAS Core Envelope
 
-The draft JSON Schema is at [`schema/aas-action-event.schema.json`](schema/aas-action-event.schema.json). The following fields describe the core model.
+The draft JSON Schema is at [`aas-action-event.schema.json`](aas-action-event.schema.json). The following fields describe the core model.
 
 | Field | Requirement | Purpose |
 |---|---|---|
@@ -392,18 +392,10 @@ Community input on these is welcome via GitHub issues.
 ├── README.md                              # Short overview, start here
 ├── SPEC.md                                # This document (the full normative discussion draft)
 ├── LICENSE                                # Apache License 2.0
-├── CONTRIBUTING.md                        # How to report issues, propose schema changes, or contribute an implementation
-├── CODE_OF_CONDUCT.md                     # Contributor Covenant v2.1
-├── .github/
-│   └── ISSUE_TEMPLATE/
-│       ├── spec-issue.md                  # Template for gaps, inconsistencies, or missing citations in the prose
-│       └── schema-proposal.md             # Template for proposed changes to the JSON Schema
-├── schema/
-│   └── aas-action-event.schema.json       # Draft JSON Schema for the core event envelope (Section 6)
-└── examples/                              # (proposed) worked examples per event type and conformance profile
+└── aas-action-event.schema.json           # Draft JSON Schema for the core event envelope (Section 6)
 ```
 
-`examples/` is not yet populated. See [Section 13](#13-governance-and-adoption), step 1, for why it's the next priority ahead of any standards-body outreach. Everything else listed above exists in the repository today.
+That's everything in the repository today. `CONTRIBUTING.md`, a `CODE_OF_CONDUCT.md`, issue templates, and a populated `examples/` folder are all reasonable next additions once outside contributors are actually engaging, see [Section 13](#13-governance-and-adoption), step 1, but none of them exist yet, and nothing above links to them.
 
 ## References
 

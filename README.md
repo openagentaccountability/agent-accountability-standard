@@ -53,8 +53,8 @@ The [full spec](SPEC.md) goes into where this overlaps with related efforts (IET
 ## Get involved
 
 - **Read the [full specification](SPEC.md)** for the threat model, the schema, and the open questions.
-- **Look at the [draft JSON Schema](schema/aas-action-event.schema.json).** It's an early stub and needs review.
-- **[Open an issue](../../issues/new/choose)** if something's unclear, wrong, or missing. See [CONTRIBUTING.md](CONTRIBUTING.md) for how issues are triaged.
+- **Look at the [draft JSON Schema](aas-action-event.schema.json).** It's an early stub and needs review.
+- **[Open an issue](../../issues/new/choose)** if something's unclear, wrong, or missing.
 
 ## About
 
