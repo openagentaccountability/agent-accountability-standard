@@ -58,7 +58,19 @@ The [full spec](SPEC.md) goes into where this overlaps with related efforts (IET
 
 ## About
 
-Initiated by Kay Yoo, [Naru Advisory](https://naruadvisory.com) · [kay@naruadvisory.com](mailto:kay@naruadvisory.com)
+Authorship and Governance
+
+The Agent Accountability Standard (AAS) was independently conceived and initially authored by Kay Yoo in 2026, through Naru Advisory.
+
+The original specification is documented in the repository's commit history and initial tagged release, v0.2.1-draft.
+
+AAS is currently maintained as an open-source discussion draft. External technical reviews, research perspectives, and contributions are welcome.
+
+Contributors will receive appropriate attribution. Participation does not imply institutional endorsement or governance authority.
+
+For contribution guidelines, see CONTRIBUTING.md.
+
+For research inquiries or collaboration: kay@naruadvisory.com
 
 ## License
 
